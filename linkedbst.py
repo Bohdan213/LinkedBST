@@ -3,6 +3,7 @@ File: linkedbst.py
 Author: Ken Lambert
 """
 import copy
+import time
 import timeit
 import random
 
@@ -84,22 +85,16 @@ class LinkedBST(AbstractCollection):
     def find(self, item):
         """If item matches an item in self, returns the
         matched item, or None otherwise."""
-
-        stack = LinkedStack()
-        stack.push(self._root)
-        value = None
-        while not stack.isEmpty():
-            node = stack.pop()
+        node = self._root
+        while 1:
             if node is None:
-                pass
+                return None
             elif item == node.data:
-                value = node.data
-                break
+                return item
             elif item < node.data:
-                stack.push(node.left)
+                node = node.left
             else:
-                stack.push(node.right)
-        return value
+                node = node.right
     # Mutator methods
     def clear(self):
         """Makes self become empty."""
@@ -110,24 +105,20 @@ class LinkedBST(AbstractCollection):
         """Adds item to the tree."""
 
         # Helper function to search for item's position
-        def stack_find(node):
-            stack = LinkedStack()
-            stack.push(node)
-            while not stack.isEmpty():
-                node = stack.pop()
-                # New item is less, go left until spot is found
-                if item < node.data:
-                    if node.left == None:
-                        node.left = BSTNode(item)
+        def stack_find(base):
+            while 1:
+                if item < base.data:
+                    if base.left == None:
+                        base.left = BSTNode(item)
+                        break
                     else:
-                        stack.push(node.left)
-                # New item is greater or equal,
-                # go right until spot is found
-                elif node.right == None:
-                    node.right = BSTNode(item)
-                else:
-                    stack.push(node.right)
-                    # End of recurse
+                        base = base.left
+                elif item >= base.data:
+                    if base.right == None:
+                        base.right = BSTNode(item)
+                        break
+                    else:
+                        base = base.right
 
         # Tree is empty, so new item goes at the root
         if self.isEmpty():
@@ -359,15 +350,11 @@ class LinkedBST(AbstractCollection):
         bin_ser_tree1 = LinkedBST()
         bin_ser_tree2 = LinkedBST()
         with open(path, 'r', encoding='utf-8') as file:
-            ind = 0
             for line in file:
                 data.append(line[:-1])
-                ind += 1
-                if ind == 3000:
-                    break
         random_data = copy.deepcopy(data)
         random.shuffle(random_data)
-        random_words = random.sample(data, 500)
+        random_words = random.sample(data, 10000)
         for elem in data:
             bin_ser_tree1.add(elem)
         for elem in random_data:
@@ -376,13 +363,7 @@ class LinkedBST(AbstractCollection):
         print("Case 2 time: ", timeit.timeit(lambda: case2_3_4(bin_ser_tree1, random_words), number=3))
         print("Case 3 time: ", timeit.timeit(lambda: case2_3_4(bin_ser_tree2, random_words), number=3))
         bin_ser_tree2.rebalance()
-        print("Case 4 time: ", timeit.timeit(lambda: case2_3_4(bin_ser_tree2, random_words), number=3))
+        print("Case 4 time: ", timeit.timeit(lambda: case2_3_4(bin_ser_tree2, random_words), number=1))
 
-if __name__ == '__main__':
-    a = LinkedBST()
-    a.add(2)
-    a.add(6)
-    a.add(1)
-    a.add(3)
-    a.add(0)
-    a.demo_bst('words.txt')
+# if __name__ == '__main__':
+#     a = LinkedBST()
